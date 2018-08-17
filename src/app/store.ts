@@ -9,13 +9,13 @@ const initialReducerMap = {
 export const store = createStore(combineReducers(initialReducerMap))
 
 
-export const injectReducer = <S>(name: string, reducer: Reducer<S>) => {
+export const injectReducer = <S>(name: string, reducerToInject: Reducer<S>) => {
   const nextReducer = combineReducers({
     ...initialReducerMap,
-    [name]: reducer
+    [name]: reducerToInject
   });
 
   store.replaceReducer(nextReducer)
 
-  return reducer
+  return reducerToInject
 }

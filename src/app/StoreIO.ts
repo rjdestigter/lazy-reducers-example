@@ -1,6 +1,8 @@
-import { store, injectReducer } from './store'
-import { AppIO, Lazy } from "./IO";
-import { Store, Reducer } from 'redux'
+import { injectReducer, store } from './store'
+
+import { AppIO } from "./IO";
+
+import { Reducer, Store } from 'redux'
 
 type LazyWithStore<T> = (store: Store) => T
 

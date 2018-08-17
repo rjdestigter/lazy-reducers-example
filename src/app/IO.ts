@@ -1,4 +1,3 @@
-import { isObject } from "util";
 
 // A thunk, a lazy value, a plain function, no arguments
 export type Lazy<T> = () => T

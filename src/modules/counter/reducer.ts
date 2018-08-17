@@ -6,7 +6,7 @@ export interface CounterState {
   value: number,
 }
 
-const initialState = {
+export const initialState = {
   value: 0,
 }
 
@@ -20,7 +20,7 @@ const reducerMap = {
   [DECREMENT]: (state: CounterState) => {
     return {
       ...state,
-      value: (state.value += 1)
+      value: (state.value -= 1)
     };
   }
 };
