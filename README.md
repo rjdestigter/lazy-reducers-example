@@ -2,6 +2,16 @@
 # Example of injecting reducers lazily
 
 ## Whyio
+An example of using IO to lazily inject reducers into the store.
+
+### Order of files to peruse:
+```
+1. src/app/IO.ts
+2. src/app/store.ts
+3. src/app/StoreIO.ts
+4. src/app/connectIo.ts
+5. src/app/Counter.tsx
+```
 
 # This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
