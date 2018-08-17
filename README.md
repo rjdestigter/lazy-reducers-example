@@ -6,12 +6,23 @@ An example of using IO to lazily inject reducers into the store.
 
 ### Order of files to peruse:
 ```
+// Allows us to wrap functions / effects into descriptions of them and run them later.
 1. src/app/IO.ts
+// Just your regular, old fashioned Redux store
 2. src/app/store.ts
+// Redux Store + IO
 3. src/app/StoreIO.ts
+// React + IO
 4. src/app/connectIo.ts
+// The final product
 5. src/app/Counter.tsx
 ```
+
+### Module: Counter
+See: `src/modules/counter`
+An example of how you can do Redux modular. The folder/module defines all it needs.
+The only promise you have to make it when implementing is:
+* Attach it's reducer to `store.state[prefix]` // See prefix defined in constants.ts
 
 # This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 

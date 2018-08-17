@@ -12,7 +12,7 @@ export default class Counter extends React.PureComponent<Props> {
     return (
       <div>
         <div>{this.props.label}: {this.props.value}</div>
-        <button onClick={this.props.increment}>Incremeent</button>
+        <button onClick={this.props.increment}>Increment</button>
         <button onClick={this.props.decrement}>Decrement</button>
       </div>
     )
