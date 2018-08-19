@@ -8,14 +8,122 @@ An example of using IO to lazily inject reducers into the store.
 ```
 // Allows us to wrap functions / effects into descriptions of them and run them later.
 1. src/app/IO.ts
+
 // Just your regular, old fashioned Redux store
 2. src/app/store.ts
+
 // Redux Store + IO
 3. src/app/StoreIO.ts
+
 // React + IO
 4. src/app/connectIo.ts
+
 // The final product
 5. src/app/Counter.tsx
+```
+
+### File 1: IO.ts
+Not `React` or `Redux` related. IO is a class allowing us to describe "running a function later" rather then executing the function immediately. 
+
+```typescript
+// Turning a function that prompts the user for there name into an IO
+const askName: string = () => window.prompt("What is your name?")
+const askNameIo: IO<string> = IO.create(askName)
+```
+
+Imagine a React component, where in `componentDidMount` we want to ask the user for their name. We could just do:
+```typescript
+...
+public componentDidMount() {
+  store.dispatch({
+    type: 'UPDATE_NAME',
+    payload: window.prompt("What is your name")
+  })
+}
+...
+```
+
+And probably, that suffices. However, in the real world we're wanting to do all kinds of impure things when a component mounts. We want to mutate the store's reducer and inject a reducer. Maybe run some sagas, fetch some data, do some logging etc. Or simply mutate store state with some information now that the comonent has mounted.
+
+IO helps taking all these effects and turn them into a single "program".
+
+```typescript
+const program1: IO<string> = IO.create(() => window.prompt("What is your name?"))
+const program2: IO<Task> = IO.create(() => store.runSaga(todoListSaga))
+const program3: IO<Reducer> = IO.create(() => store.replaceReducer(..))
+
+// In both examples we are "running" the reducer program first so that is 
+// attached to the store before we run the saga or ask the user for their name.
+const finalProgram: IO<[Task, string]> = program3.andThen(
+  IO.combine(program2, program1)
+)
+
+// or, maybe we want to ask the user for their name before we run the saga so that
+// we can pass the name to the saga
+
+/*
+1. Run program 3
+2. Then run program 1
+3. Then, with the result of program 1,
+   run a program that starts a saga
+*/ 
+const finalProgram: IO<Task> = program3.andThen(
+  program1.flatMap(
+    (name: string) => IO.create(
+      () => store.runSaga(sendNameToServer, name)
+    )
+  )
+)
+```
+
+### File 3: Redux + IO, StoreIO.ts
+`StoreIO.ts` is simply a file combining what Redux has to offer with what IO has to offer. It provides 2 utility functions:
+
+#### storeIo
+A higher-order-function, - that as it's argument -, takes a function that will be given the store object.
+
+```typescript
+const dispatchWhenMounted = (store: Store) => store.dispatch({type: "MOUNTED" })
+const io: IO<void> = storeIo(dispatchWhenMounted)
+```
+
+#### reducerIo
+A function that, given a reducer's name and it's correlating function, - will return an io program that, when run, replaces the stores current reducer with a the given reducer added.
+
+```typescript
+
+// Current store shape:
+/*
+{
+  todos: Todo[],
+}
+*/
+
+const io: IO<Reducer<Users>> = reducerIo("users", usersReducer)
+
+io.run()
+
+// Next store shape:
+/*
+{
+  todos: Todo[],
+  users: Users[],
+}
+*/
+```
+
+### File 4: React + IO, connectIo.ts
+`connectIo` works similar to `react-redux`'s `connect`, but for IO programs.
+
+It:
+1. Exports a function that takes an io program
+2. Returns a higher-order-component that takes a React component
+3. And returns a component that will:
+   * Run the io program in `componentDidMount` by executing `io.run()`
+   * Render the given React component after the program has run
+
+```typescript
+const ComponentWithIO = connectIo(finalProgram)(ToDoListComponent)
 ```
 
 ### Module: Counter
